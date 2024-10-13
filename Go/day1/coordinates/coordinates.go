@@ -23,13 +23,13 @@ func CalculateTotal(path string, reader fileops.ReadableFile) (int, error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		calibrationValuesTotal += sumFirstAndLastDigit(line)
+		calibrationValuesTotal += combineFirstAndLastDigit(line)
 	}
 
 	return calibrationValuesTotal, nil
 }
 
-func sumFirstAndLastDigit(line string) int {
+func combineFirstAndLastDigit(line string) int {
 	firstDigit, lastDigit := 0, 0
 
 	for i := 0; i < len(line); i++ {
@@ -48,7 +48,7 @@ func sumFirstAndLastDigit(line string) int {
 		}
 	}
 
-	return firstDigit + lastDigit
+	return firstDigit*10 + lastDigit
 }
 
 func isDigitOtherwiseZero(input uint8) int {
