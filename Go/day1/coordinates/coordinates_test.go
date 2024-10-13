@@ -20,13 +20,13 @@ func (mockReader *MockFileReader) Open(path string) (io.ReadCloser, error) {
 
 func TestCalculatesTotal(t *testing.T) {
 	const fileName = "test_input.txt"
-	const lines = "aX1bcdefghi9j\ngsFg6asboeomNa\noid7afbk3ce8ao"
+	const lines = "7pqrstsixteen\neightwothree\nzoneight234"
 
 	mockReader := new(MockFileReader)
 	mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
 
 	actual, _ := CalculateTotal(fileName, mockReader)
-	expected := 19 + 66 + 78
+	expected := 76 + 83 + 14
 
 	assert.Equal(
 		t,
@@ -49,11 +49,12 @@ func TestFailsWhenUnableToReadFile(t *testing.T) {
 		t,
 		err,
 		expected,
+		"Did not fail when unable to read file",
 	)
 }
 
 func TestCombinesWhenOnlyTwoDigitsAreProvided(t *testing.T) {
-	const line = "aX1bcdefghi9j"
+	const line = "aXonebcdefghi9j"
 
 	actual := combineFirstAndLastDigit(line)
 	expected := 19
@@ -67,7 +68,7 @@ func TestCombinesWhenOnlyTwoDigitsAreProvided(t *testing.T) {
 }
 
 func TestCombineWhenMoreThanTwoDigitsAreProvided(t *testing.T) {
-	const line = "oid7afbk3ce8ao"
+	const line = "oid7afbk3ceeightao"
 
 	actual := combineFirstAndLastDigit(line)
 	expected := 78
@@ -81,7 +82,7 @@ func TestCombineWhenMoreThanTwoDigitsAreProvided(t *testing.T) {
 }
 
 func TestCombinesWhenOnlyOneDigitIsProvided(t *testing.T) {
-	const line = "gsFg6asboeomNa"
+	const line = "gsFgsixasboeomNa"
 
 	actual := combineFirstAndLastDigit(line)
 	expected := 66
@@ -91,6 +92,65 @@ func TestCombinesWhenOnlyOneDigitIsProvided(t *testing.T) {
 		expected,
 		actual,
 		"Did not combine the first and last digit correctly",
+	)
+}
+
+func TestReplacesWordsWithDigits(t *testing.T) {
+	const input = "5five_sixseven8one1twozthreefoureight9nine0eightwozero"
+
+	actual := replaceWordsWithDigits(input)
+	expected := "5f5ive_s6ixs7even8o1ne1t2wozt3hreef4oure8ight9n9ine0e8ight2wozero"
+
+	assert.Equal(
+		t,
+		expected,
+		actual,
+		"Did not properly replace words with digits",
+	)
+}
+
+func TestRetrievesIndexOfItemInArray(t *testing.T) {
+	arr := []string{"one", "two", "three"}
+	val := "two"
+
+	actual, _ := arrayIndexOf(arr, val)
+	expected := 1
+
+	assert.Equal(
+		t,
+		expected,
+		actual,
+		"Did not retrieve index of item in array",
+	)
+}
+
+func TestFailsWhenItemNotInArray(t *testing.T) {
+	arr := []string{"one", "two", "three"}
+	val := "zero"
+
+	_, err := arrayIndexOf(arr, val)
+	expected := "index not found"
+
+	assert.EqualError(
+		t,
+		err,
+		expected,
+		"Did not fail when unable to retrieve index of item in array",
+	)
+}
+
+func TestReplacesInANonDestructiveWaY(t *testing.T) {
+	val := "five"
+	num := 5
+
+	expected := "f5ive"
+	actual := nonDestructiveReplace(val, num)
+
+	assert.Equal(
+		t,
+		expected,
+		actual,
+		"Did not replace properly",
 	)
 }
 

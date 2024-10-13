@@ -3,7 +3,10 @@ package coordinates
 import (
 	"bufio"
 	"day1/fileops"
+	"errors"
+	"fmt"
 	"strconv"
+	"strings"
 	"unicode"
 )
 
@@ -31,6 +34,7 @@ func CalculateTotal(path string, reader fileops.ReadableFile) (int, error) {
 
 func combineFirstAndLastDigit(line string) int {
 	firstDigit, lastDigit := 0, 0
+	line = replaceWordsWithDigits(line)
 
 	for i := 0; i < len(line); i++ {
 		firstDigit = isDigitOtherwiseZero(line[i])
@@ -49,6 +53,39 @@ func combineFirstAndLastDigit(line string) int {
 	}
 
 	return firstDigit*10 + lastDigit
+}
+
+func replaceWordsWithDigits(line string) string {
+	nums := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
+
+	for i := 0; i < len(line); i++ {
+		for _, num := range nums {
+			if strings.HasPrefix(line[i:], num) {
+				numIdx, _ := arrayIndexOf(nums, num)
+				replaced := nonDestructiveReplace(num, numIdx+1)
+				line = strings.Replace(line, num, replaced, 1)
+				line = replaceWordsWithDigits(line)
+			}
+		}
+	}
+
+	return line
+}
+
+func arrayIndexOf(arr []string, search string) (int, error) {
+	for idx, val := range arr {
+		if val == search {
+			return idx, nil
+		}
+	}
+
+	return -1, errors.New("index not found")
+}
+
+func nonDestructiveReplace(val string, num int) string {
+	replacedVal := fmt.Sprintf("%s%d%s", val[0:1], num, val[1:])
+
+	return replacedVal
 }
 
 func isDigitOtherwiseZero(input uint8) int {

@@ -12,7 +12,7 @@ import (
 
 func TestOutputsTotal(t *testing.T) {
 	const filename = "testdata/test_input.txt"
-	const expectedTotal = 19 + 66 + 78
+	const expectedTotal = 19 + 66 + 78 + 29 + 83 + 14 + 76
 
 	os.Args = []string{"cmd", filename}
 
