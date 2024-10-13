@@ -26,7 +26,7 @@ func TestCalculatesTotal(t *testing.T) {
 	mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
 
 	actual, _ := CalculateTotal(fileName, mockReader)
-	expected := 1 + 9 + 6 + 6 + 7 + 8
+	expected := 19 + 66 + 78
 
 	assert.Equal(
 		t,
@@ -52,45 +52,45 @@ func TestFailsWhenUnableToReadFile(t *testing.T) {
 	)
 }
 
-func TestSumsWhenOnlyTwoDigitsAreProvided(t *testing.T) {
+func TestCombinesWhenOnlyTwoDigitsAreProvided(t *testing.T) {
 	const line = "aX1bcdefghi9j"
 
-	actual := sumFirstAndLastDigit(line)
-	expected := 1 + 9
+	actual := combineFirstAndLastDigit(line)
+	expected := 19
 
 	assert.Equal(
 		t,
 		expected,
 		actual,
-		"Did not sum the first and last digit correctly",
+		"Did not combine the first and last digit correctly",
 	)
 }
 
-func TestSumsWhenMoreThanTwoDigitsAreProvided(t *testing.T) {
+func TestCombineWhenMoreThanTwoDigitsAreProvided(t *testing.T) {
 	const line = "oid7afbk3ce8ao"
 
-	actual := sumFirstAndLastDigit(line)
-	expected := 7 + 8
+	actual := combineFirstAndLastDigit(line)
+	expected := 78
 
 	assert.Equal(
 		t,
 		expected,
 		actual,
-		"Did not sum the first and last digit correctly",
+		"Did not combine the first and last digit correctly",
 	)
 }
 
-func TestSumsWhenOnlyOneDigitIsProvided(t *testing.T) {
+func TestCombinesWhenOnlyOneDigitIsProvided(t *testing.T) {
 	const line = "gsFg6asboeomNa"
 
-	actual := sumFirstAndLastDigit(line)
-	expected := 6 + 6
+	actual := combineFirstAndLastDigit(line)
+	expected := 66
 
 	assert.Equal(
 		t,
 		expected,
 		actual,
-		"Did not sum the first and last digit correctly",
+		"Did not combine the first and last digit correctly",
 	)
 }
 
