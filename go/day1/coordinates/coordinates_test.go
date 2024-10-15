@@ -140,11 +140,11 @@ func TestFailsWhenItemNotInArray(t *testing.T) {
 }
 
 func TestReplacesInANonDestructiveWaY(t *testing.T) {
-	val := "five"
-	num := 5
+	const val = "five"
+	const num = 5
 
-	expected := "f5ive"
 	actual := nonDestructiveReplace(val, num)
+	expected := "f5ive"
 
 	assert.Equal(
 		t,
@@ -180,4 +180,41 @@ func TestCanIdentifyNonDigit(t *testing.T) {
 		actual,
 		"Did not identify a non-digit",
 	)
+}
+
+func BenchmarkTotalCalculation(b *testing.B) {
+	const fileName = "test_input.txt"
+	const lines = "7pqrstsixteen\neightwothree\nzoneight234"
+
+	mockReader := new(MockFileReader)
+	mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
+
+	for i := 0; i < b.N; i++ {
+		_, _ = CalculateTotal(fileName, mockReader)
+	}
+}
+
+func BenchmarkWordReplacement(b *testing.B) {
+	const input = "5five_sixseven8one1twozthreefoureight9nine0eightwozero"
+
+	for i := 0; i < b.N; i++ {
+		_ = replaceWordsWithDigits(input)
+	}
+}
+
+func BenchmarkNonDestructiveReplacement(b *testing.B) {
+	const val = "five"
+	const num = 5
+
+	for i := 0; i < b.N; i++ {
+		_ = nonDestructiveReplace(val, num)
+	}
+}
+
+func BenchmarkDigitCombination(b *testing.B) {
+	const line = "aXfivebcdefghi6j"
+
+	for i := 0; i < b.N; i++ {
+		_ = combineFirstAndLastDigit(line)
+	}
 }

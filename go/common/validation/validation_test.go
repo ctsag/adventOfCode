@@ -5,43 +5,59 @@ import (
 	"testing"
 )
 
-func TestExtractsSingleArg(t *testing.T) {
-	var args = []string{"cmd", "input.txt"}
+func TestValidationShould(t *testing.T) {
 
-	actual, _ := ExtractSingleArgIgnoringOthers(args, 2)
-	expected := "input.txt"
+	t.Run("extract single argument", func(t *testing.T) {
+		var args = []string{"cmd", "input.txt"}
 
-	assert.Equal(
-		t,
-		expected,
-		actual,
-		"Did not extract path argument",
-	)
+		actual, _ := ExtractSingleArgIgnoringOthers(args, 2)
+		expected := "input.txt"
+
+		assert.Equal(
+			t,
+			expected,
+			actual,
+			"Did not extract path argument",
+		)
+	})
+
+	t.Run("ignore extraneous arguments", func(t *testing.T) {
+		var args = []string{"cmd", "input.txt", "extraneous"}
+
+		actual, _ := ExtractSingleArgIgnoringOthers(args, 2)
+		expected := "input.txt"
+
+		assert.Equal(
+			t,
+			expected,
+			actual,
+			"Did not extract path argument",
+		)
+	})
+
+	t.Run("fail for insufficient arguments", func(t *testing.T) {
+		var args = []string{"cmd"}
+
+		_, err := ExtractSingleArgIgnoringOthers(args, 2)
+		expected := "no file parameter provided"
+
+		assert.Error(
+			t,
+			err,
+			expected,
+		)
+	})
+
 }
 
-func TestIgnoresExtraneousArguments(t *testing.T) {
-	var args = []string{"cmd", "input.txt", "extraneous"}
+func BenchmarkValidation(b *testing.B) {
 
-	actual, _ := ExtractSingleArgIgnoringOthers(args, 2)
-	expected := "input.txt"
+	b.Run("validation", func(b *testing.B) {
+		var args = []string{"cmd", "input.txt"}
 
-	assert.Equal(
-		t,
-		expected,
-		actual,
-		"Did not extract path argument",
-	)
-}
+		for i := 0; i < b.N; i++ {
+			_, _ = ExtractSingleArgIgnoringOthers(args, 2)
+		}
+	})
 
-func TestFailsWhenNotEnoughArguments(t *testing.T) {
-	var args = []string{"cmd"}
-
-	_, err := ExtractSingleArgIgnoringOthers(args, 2)
-	expected := "no file parameter provided"
-
-	assert.Error(
-		t,
-		err,
-		expected,
-	)
 }

@@ -117,3 +117,13 @@ func captureErrorCode(f func()) int {
 
 	return exitCode
 }
+
+func BenchmarkMain(b *testing.B) {
+	const filename = "testdata/test_input.txt"
+
+	os.Args = []string{"cmd", filename}
+
+	for i := 0; i < b.N; i++ {
+		_, _, _ = captureStdOut(main)
+	}
+}
