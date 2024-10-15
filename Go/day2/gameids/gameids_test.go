@@ -18,7 +18,7 @@ func (mockReader *MockFileReader) Open(path string) (io.ReadCloser, error) {
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func TestTotalCalculationShould(t *testing.T) {
+func TestTotalsCalculationShould(t *testing.T) {
 
 	t.Run("calculate total of possible game ids", func(t *testing.T) {
 		const fileName = "test_input.txt"
@@ -31,14 +31,34 @@ func TestTotalCalculationShould(t *testing.T) {
 		mockReader := new(MockFileReader)
 		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
 
-		actual, _ := CalculateTotal(fileName, mockReader)
+		actual, _, _ := CalculateTotals(fileName, mockReader)
 		expected := 1 + 4 + 5
 
 		assert.Equal(
 			t,
 			expected,
 			actual,
-			"Did not calculate the total correctly",
+			"Did not calculate the game id total correctly",
+		)
+	})
+
+	t.Run("calculate total minimum cubes total", func(t *testing.T) {
+		const fileName = "test_input.txt"
+		const lines = `Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+                       Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+                       Game 3: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green`
+
+		mockReader := new(MockFileReader)
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
+
+		_, actual, _ := CalculateTotals(fileName, mockReader)
+		expected := 48 + 12 + 36
+
+		assert.Equal(
+			t,
+			expected,
+			actual,
+			"Did not calculate the minimum cubes total correctly",
 		)
 	})
 
@@ -48,7 +68,7 @@ func TestTotalCalculationShould(t *testing.T) {
 		mockReader := new(MockFileReader)
 		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader("")), errors.New("file open error"))
 
-		_, err := CalculateTotal(fileName, mockReader)
+		_, _, err := CalculateTotals(fileName, mockReader)
 		expected := "file open error"
 
 		assert.EqualError(
@@ -59,7 +79,27 @@ func TestTotalCalculationShould(t *testing.T) {
 		)
 	})
 
-	t.Run("fail when unable to parse input", func(t *testing.T) {
+	t.Run("fail when unable to parse game id", func(t *testing.T) {
+		const fileName = "test_input.txt"
+		const lines = `Game 1: 7 blue, 9 red, 1 green; 8 green; 10 green, 5 blue, 3 red; 11 blue, 5 red, 1 green
+	                   Round 2: 3 red, 7 blue; 3 blue, 2 red, 2 green; 2 green, 1 red, 1 blue; 3 green, 5 blue, 5 red; 7 blue, 1 green, 1 red; 2 green, 7 blue
+			           Game 3: 7 green, 3 blue; 20 blue, 4 green; 6 red, 13 blue, 2 green`
+
+		mockReader := new(MockFileReader)
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
+
+		_, _, err := CalculateTotals(fileName, mockReader)
+		expected := "unable to extract game id in line"
+
+		assert.ErrorContains(
+			t,
+			err,
+			expected,
+			"Did not handle game id parsing failure properly",
+		)
+	})
+
+	t.Run("fail when unable to parse color values", func(t *testing.T) {
 		const fileName = "test_input.txt"
 		const lines = `Game 1: 7 blue, 9 red, 1 green; 8 green; 10 green, 5 blue, 3 red; 11 blue, 5 red, 1 green
 	                   Game 2- 3 red, 7 blue; 3 blue, 2 red, 2 green; 2 green, 1 red, 1 blue; 3 green, 5 blue, 5 red; 7 blue, 1 green, 1 red; 2 green, 7 blue
@@ -68,8 +108,8 @@ func TestTotalCalculationShould(t *testing.T) {
 		mockReader := new(MockFileReader)
 		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
 
-		_, err := CalculateTotal(fileName, mockReader)
-		expected := "unable to parse line"
+		_, _, err := CalculateTotals(fileName, mockReader)
+		expected := "unable to extract color values in line"
 
 		assert.ErrorContains(
 			t,
@@ -111,11 +151,11 @@ func TestPossibleGameDeterminationShould(t *testing.T) {
 		)
 	})
 
-	t.Run("fail when unable to split line", func(t *testing.T) {
+	t.Run("fail when unable to extract color values", func(t *testing.T) {
 		const line = "Game 2- 7 green, 3 blue; 20 blue, 4 green; 6 red, 13 blue, 2 green"
 
 		_, err := possibleGameIdOrZero(line)
-		expected := "unable to parse line"
+		expected := "unable to extract color values in line"
 
 		assert.ErrorContains(
 			t,
@@ -129,13 +169,45 @@ func TestPossibleGameDeterminationShould(t *testing.T) {
 		const line = "Round 2: 7 green, 3 blue; 20 blue, 4 green; 6 red, 13 blue, 2 green"
 
 		_, err := possibleGameIdOrZero(line)
-		expected := "unable to extract game id"
+		expected := "unable to extract game id in line"
 
 		assert.ErrorContains(
 			t,
 			err,
 			expected,
 			"Did not handle game id parsing failure properly",
+		)
+	})
+
+}
+
+func TestMaxColorValuesExtractionShould(t *testing.T) {
+
+	t.Run("extract maximum values per color", func(t *testing.T) {
+		const line = "Game 2: 7 green, 3 blue; 20 blue, 4 green; 6 red, 13 blue, 2 green"
+
+		actual, _ := extractMaxColorValues(line)
+		expected := map[string]int{"red": 6, "green": 7, "blue": 20}
+
+		assert.Equal(
+			t,
+			expected,
+			actual,
+			"Did not extract max color values correctly",
+		)
+	})
+
+	t.Run("fail when unable to split the line provided", func(t *testing.T) {
+		const line = "7 green, 3 blue; 20 blue, 4 green; 6 red, 13 blue, 2 green"
+
+		_, err := extractMaxColorValues(line)
+		expected := "unable to parse line"
+
+		assert.ErrorContains(
+			t,
+			err,
+			expected,
+			"Did not extract max color values correctly",
 		)
 	})
 
@@ -168,6 +240,38 @@ func TestGameIdExtractionShould(t *testing.T) {
 			err,
 			expected,
 			"Did not fail to extract game id properly",
+		)
+	})
+
+}
+
+func TestMinPossibleCubesDeterminationShould(t *testing.T) {
+
+	t.Run("return minimum possible cubes", func(t *testing.T) {
+		const line = "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red"
+
+		actual, _ := minimumPossibleCubes(line)
+		expected := 20 * 13 * 6
+
+		assert.Equal(
+			t,
+			expected,
+			actual,
+			"Did not calculate minimum possible cubes correctly",
+		)
+	})
+
+	t.Run("fail when unable to extract color values", func(t *testing.T) {
+		const line = "Game 2- 7 green, 3 blue; 20 blue, 4 green; 6 red, 13 blue, 2 green"
+
+		_, err := minimumPossibleCubes(line)
+		expected := "unable to extract color values in line"
+
+		assert.ErrorContains(
+			t,
+			err,
+			expected,
+			"Did not handle game id parsing failure properly",
 		)
 	})
 

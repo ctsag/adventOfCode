@@ -21,12 +21,13 @@ func main() {
 		return
 	}
 
-	total, err := gameids.CalculateTotal(path, &fileops.FileReader{})
+	idsTotal, minCubesTotal, err := gameids.CalculateTotals(path, &fileops.FileReader{})
 	if err != nil {
 		log.Printf("Error: %s\n", err)
 		osExit(2)
 		return
 	}
 
-	fmt.Printf("The sum of all possible game Ids is %d\n", total)
+	fmt.Printf("The sum of all possible game ids is %d\n", idsTotal)
+	fmt.Printf("The sum of the minimum posisble cubes is %d\n", minCubesTotal)
 }

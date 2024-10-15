@@ -12,7 +12,7 @@ import (
 
 func TestApplicationShould(t *testing.T) {
 
-	t.Run("output the total", func(t *testing.T) {
+	t.Run("output the game id total", func(t *testing.T) {
 		const filename = "testdata/test_input.txt"
 		const expectedTotal = 1 + 2 + 5
 
@@ -23,7 +23,7 @@ func TestApplicationShould(t *testing.T) {
 			assert.Fail(t, "Error: %s\n", err)
 		}
 
-		expectedOut := fmt.Sprintf("The sum of all possible game Ids is %d\n", expectedTotal)
+		expectedOut := fmt.Sprintf("The sum of all possible game ids is %d\n", expectedTotal)
 		expectedCode := 0
 
 		assert.Equal(
@@ -33,10 +33,39 @@ func TestApplicationShould(t *testing.T) {
 			"Did not exit with the expected code",
 		)
 
+		assert.Contains(
+			t,
+			actualOut,
+			expectedOut,
+			"Did not output the total correctly",
+		)
+	})
+
+	t.Run("output the minimum possible cubes total", func(t *testing.T) {
+		const filename = "testdata/test_input.txt"
+		const expectedTotal = 48 + 12 + 1560 + 630 + 36
+
+		os.Args = []string{"cmd", filename}
+
+		actualOut, actualCode, err := captureStdOut(main)
+		if err != nil {
+			assert.Fail(t, "Error: %s\n", err)
+		}
+
+		expectedOut := fmt.Sprintf("The sum of the minimum posisble cubes is %d\n", expectedTotal)
+		expectedCode := 0
+
 		assert.Equal(
 			t,
-			expectedOut,
+			expectedCode,
+			actualCode,
+			"Did not exit with the expected code",
+		)
+
+		assert.Contains(
+			t,
 			actualOut,
+			expectedOut,
 			"Did not output the total correctly",
 		)
 	})
