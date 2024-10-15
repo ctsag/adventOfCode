@@ -1,9 +1,9 @@
 package main
 
 import (
-	"day2/fileops"
-	"day2/gameids"
-	"day2/validation"
+	"adventOfCode/common/fileops"
+	"adventOfCode/common/validation"
+	"adventOfCode/day1/coordinates"
 	"fmt"
 	"log"
 	"os"
@@ -21,13 +21,12 @@ func main() {
 		return
 	}
 
-	idsTotal, minCubesTotal, err := gameids.CalculateTotals(path, &fileops.FileReader{})
+	total, err := coordinates.CalculateTotal(path, &fileops.FileReader{})
 	if err != nil {
 		log.Printf("Error: %s\n", err)
 		osExit(2)
 		return
 	}
 
-	fmt.Printf("The sum of all possible game ids is %d\n", idsTotal)
-	fmt.Printf("The sum of the minimum posisble cubes is %d\n", minCubesTotal)
+	fmt.Printf("The sum of all calibration values is %d\n", total)
 }
