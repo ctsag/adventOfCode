@@ -1,8 +1,8 @@
 package gameids
 
 import (
+	"adventOfCode/common/fileops"
 	"bufio"
-	"day2/fileops"
 	"errors"
 	"fmt"
 	"regexp"

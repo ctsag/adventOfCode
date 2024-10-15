@@ -1,8 +1,8 @@
 package coordinates
 
 import (
+	"adventOfCode/common/fileops"
 	"bufio"
-	"day1/fileops"
 	"errors"
 	"fmt"
 	"strconv"

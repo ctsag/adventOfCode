@@ -1,4 +1,4 @@
-module day2
+module adventOfCode
 
 go 1.23.2
 
