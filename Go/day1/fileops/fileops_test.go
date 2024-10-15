@@ -94,3 +94,17 @@ func TestSuppressesFileCloseFailure(t *testing.T) {
 		"Did not suppress file close error",
 	)
 }
+
+func TestOpensRealFile(t *testing.T) {
+	const fileName = "../testdata/test_input.txt"
+
+	fileReader := FileReader{}
+
+	_, err := fileReader.Open(fileName)
+
+	assert.Nil(
+		t,
+		err,
+		"Failed to open file",
+	)
+}

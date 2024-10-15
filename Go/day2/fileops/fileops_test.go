@@ -98,3 +98,21 @@ func TestFileOpsShould(t *testing.T) {
 	})
 
 }
+
+func TestConcreteFileReaderShould(t *testing.T) {
+
+	t.Run("open file", func(t *testing.T) {
+		const fileName = "../testdata/test_input.txt"
+
+		fileReader := FileReader{}
+
+		_, err := fileReader.Open(fileName)
+
+		assert.Nil(
+			t,
+			err,
+			"Failed to open file",
+		)
+	})
+
+}
