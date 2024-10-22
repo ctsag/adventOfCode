@@ -12,62 +12,34 @@ import (
 
 func TestApplicationShould(t *testing.T) {
 
-	t.Run("output the game id total", func(t *testing.T) {
+	t.Run("output the schematic values total", func(t *testing.T) {
 		const filename = "testdata/test_input.txt"
-		const expectedTotal = 1 + 2 + 5
+		const expectedTotal = 467 + 35 + 633 + 617 + 592 + 755 + 664 + 598
 
 		os.Args = []string{"cmd", filename}
 
-		actualOut, actualCode, err := captureStdOut(main)
-		if err != nil {
-			assert.Fail(t, "Error: %s\n", err)
-		}
+		actualOut, actualCode, _ := captureStdOut(main)
 
-		expectedOut := fmt.Sprintf("The sum of all possible game ids is %d\n", expectedTotal)
+		expectedOut := fmt.Sprintf("The sum of all schematic values is %d\n", expectedTotal)
 		expectedCode := 0
 
-		assert.Equal(
-			t,
-			expectedCode,
-			actualCode,
-			"Did not exit with the expected code",
-		)
-
-		assert.Contains(
-			t,
-			actualOut,
-			expectedOut,
-			"Did not output the total correctly",
-		)
+		assert.Equal(t, expectedCode, actualCode, "Did not exit with the expected code")
+		assert.Contains(t, actualOut, expectedOut, "Did not output the schematic values total correctly")
 	})
 
-	t.Run("output the minimum possible cubes total", func(t *testing.T) {
+	t.Run("output the gear ratios total", func(t *testing.T) {
 		const filename = "testdata/test_input.txt"
-		const expectedTotal = 48 + 12 + 1560 + 630 + 36
+		const expectedTotal = 467*35 + 755*598
 
 		os.Args = []string{"cmd", filename}
 
-		actualOut, actualCode, err := captureStdOut(main)
-		if err != nil {
-			assert.Fail(t, "Error: %s\n", err)
-		}
+		actualOut, actualCode, _ := captureStdOut(main)
 
-		expectedOut := fmt.Sprintf("The sum of the minimum posisble cubes is %d\n", expectedTotal)
+		expectedOut := fmt.Sprintf("The sum of all gear ratios is %d\n", expectedTotal)
 		expectedCode := 0
 
-		assert.Equal(
-			t,
-			expectedCode,
-			actualCode,
-			"Did not exit with the expected code",
-		)
-
-		assert.Contains(
-			t,
-			actualOut,
-			expectedOut,
-			"Did not output the total correctly",
-		)
+		assert.Equal(t, expectedCode, actualCode, "Did not exit with the expected code")
+		assert.Contains(t, actualOut, expectedOut, "Did not output the gear ratios total correctly")
 	})
 
 	t.Run("fail when wrong arguments are passed", func(t *testing.T) {
@@ -76,12 +48,7 @@ func TestApplicationShould(t *testing.T) {
 		actualCode := captureErrorCode(main)
 		expectedCode := 1
 
-		assert.Equal(
-			t,
-			expectedCode,
-			actualCode,
-			"Did not exit with the expected code",
-		)
+		assert.Equal(t, expectedCode, actualCode, "Did not exit with the expected code")
 	})
 
 	t.Run("fail for any file parsing error", func(t *testing.T) {
@@ -90,12 +57,7 @@ func TestApplicationShould(t *testing.T) {
 		actualCode := captureErrorCode(main)
 		expectedCode := 2
 
-		assert.Equal(
-			t,
-			expectedCode,
-			actualCode,
-			"Did not exit with the expected code",
-		)
+		assert.Equal(t, expectedCode, actualCode, "Did not exit with the expected code")
 	})
 
 }
@@ -147,18 +109,4 @@ func captureStdOut(f func()) (string, int, error) {
 	}
 
 	return buffer.String(), exitCode, nil
-}
-
-func BenchmarkMain(b *testing.B) {
-
-	b.Run("output the game id total", func(b *testing.B) {
-		const filename = "testdata/test_input.txt"
-
-		os.Args = []string{"cmd", filename}
-
-		for i := 0; i < b.N; i++ {
-			_, _, _ = captureStdOut(main)
-		}
-	})
-
 }

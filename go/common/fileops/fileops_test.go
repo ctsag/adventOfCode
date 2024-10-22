@@ -27,84 +27,121 @@ func (mockReader *MockFileReader) Open(path string) (io.ReadCloser, error) {
 	return args.Get(0).(io.ReadCloser), args.Error(1)
 }
 
-func TestOpensFile(t *testing.T) {
-	const fileName = "test_input.txt"
-	const contents = "test contents"
+func TestFileOpsShould(t *testing.T) {
 
-	mockReader := new(MockFileReader)
-	mockFile := new(MockReadCloser)
+	t.Run("open file", func(t *testing.T) {
+		const fileName = "test_input.txt"
+		const contents = "test contents"
 
-	mockFile.On("Close").Return(nil)
-	mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(contents)), nil)
+		mockReader := new(MockFileReader)
+		mockFile := new(MockReadCloser)
 
-	reader, err := OpenFile(fileName, mockReader)
+		mockFile.On("Close").Return(nil)
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(contents)), nil)
 
-	assert.Nil(
-		t,
-		err,
-		"Did not open file",
-	)
+		reader, err := OpenFile(fileName, mockReader)
 
-	actual, _ := io.ReadAll(reader)
-	expected := contents
+		assert.Nil(
+			t,
+			err,
+			"Did not open file",
+		)
 
-	assert.Equal(
-		t,
-		string(actual),
-		expected,
-		"Did not return expected contents",
-	)
+		actual, _ := io.ReadAll(reader)
+		expected := contents
+
+		assert.Equal(
+			t,
+			string(actual),
+			expected,
+			"Did not return expected contents",
+		)
+	})
+
+	t.Run("fail when unable to open file", func(t *testing.T) {
+		const fileName = "test_input.txt"
+
+		mockReader := new(MockFileReader)
+		mockFile := new(MockReadCloser)
+
+		mockFile.On("Close").Return(nil)
+		mockReader.On("Open", fileName).Return(io.NopCloser(nil), errors.New("file open error"))
+
+		_, err := OpenFile(fileName, mockReader)
+		expected := "file open error"
+
+		assert.EqualError(
+			t,
+			err,
+			expected,
+			"Did not return expected error",
+		)
+	})
+
+	t.Run("suppress failure to close file", func(t *testing.T) {
+		const fileName = "test_input.txt"
+
+		mockReader := new(MockFileReader)
+		mockFile := new(MockReadCloser)
+
+		mockFile.On("Close").Return(errors.New("file close error"))
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader("")), nil)
+
+		file, _ := OpenFile(fileName, mockReader)
+		err := CloseFile(file)
+
+		assert.Nil(
+			t,
+			err,
+			"Did not suppress file close error",
+		)
+	})
+
 }
 
-func TestHandlesFileOpenFailure(t *testing.T) {
-	const fileName = "test_input.txt"
+func TestConcreteFileReaderShould(t *testing.T) {
 
-	mockReader := new(MockFileReader)
-	mockFile := new(MockReadCloser)
+	t.Run("open file", func(t *testing.T) {
+		const fileName = "../testdata/test_input.txt"
 
-	mockFile.On("Close").Return(nil)
-	mockReader.On("Open", fileName).Return(io.NopCloser(nil), errors.New("file open error"))
+		fileReader := FileReader{}
 
-	_, err := OpenFile(fileName, mockReader)
-	expected := "file open error"
+		_, err := fileReader.Open(fileName)
 
-	assert.EqualError(
-		t,
-		err,
-		expected,
-		"Did not return expected error",
-	)
+		assert.Nil(
+			t,
+			err,
+			"Failed to open file",
+		)
+	})
+
 }
 
-func TestSuppressesFileCloseFailure(t *testing.T) {
-	const fileName = "test_input.txt"
+func BenchmarkFileOps(b *testing.B) {
 
-	mockReader := new(MockFileReader)
-	mockFile := new(MockReadCloser)
+	b.Run("mock reader", func(b *testing.B) {
+		const fileName = "test_input.txt"
+		const contents = "test contents"
 
-	mockFile.On("Close").Return(errors.New("file close error"))
-	mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader("")), nil)
+		mockReader := new(MockFileReader)
+		mockFile := new(MockReadCloser)
 
-	file, _ := OpenFile(fileName, mockReader)
-	err := CloseFile(file)
+		mockFile.On("Close").Return(nil)
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(contents)), nil)
 
-	assert.Nil(
-		t,
-		err,
-		"Did not suppress file close error",
-	)
-}
+		for i := 0; i < b.N; i++ {
+			_, _ = OpenFile(fileName, mockReader)
+		}
+	})
 
-func TestOpensRealFile(t *testing.T) {
-	const fileName = "../testdata/test_input.txt"
+	b.Run("concrete reader", func(b *testing.B) {
+		const fileName = "../testdata/test_input.txt"
 
-	fileReader := FileReader{}
+		fileReader := FileReader{}
 
-	_, err := fileReader.Open(fileName)
+		for i := 0; i < b.N; i++ {
+			_, _ = fileReader.Open(fileName)
+		}
+	})
 
-	assert.Nil(
-		t,
-		err,
-		"Failed to open file",
-	)
 }
