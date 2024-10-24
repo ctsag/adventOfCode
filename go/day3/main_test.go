@@ -110,3 +110,17 @@ func captureStdOut(f func()) (string, int, error) {
 
 	return buffer.String(), exitCode, nil
 }
+
+func BenchmarkMain(b *testing.B) {
+
+	b.Run("output the totals", func(b *testing.B) {
+		const filename = "testdata/test_input.txt"
+
+		os.Args = []string{"cmd", filename}
+
+		for i := 0; i < b.N; i++ {
+			_, _, _ = captureStdOut(main)
+		}
+	})
+
+}

@@ -151,7 +151,7 @@ func captureStdOut(f func()) (string, int, error) {
 
 func BenchmarkMain(b *testing.B) {
 
-	b.Run("output the game id total", func(b *testing.B) {
+	b.Run("output the totals", func(b *testing.B) {
 		const filename = "testdata/test_input.txt"
 
 		os.Args = []string{"cmd", filename}

@@ -223,3 +223,91 @@ func TestValueFromCoordinates(t *testing.T) {
 	}
 
 }
+
+func BenchmarkTotalsCalculation(b *testing.B) {
+
+	b.Run("totals calculation", func(b *testing.B) {
+		const fileName = "test_input.txt"
+		const lines = "467..114..\n...*......\n..35..633.\n......#..."
+
+		mockReader := new(MockFileReader)
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
+
+		for i := 0; i < b.N; i++ {
+			_, _, _ = CalculateTotals(fileName, mockReader)
+		}
+	})
+
+	b.Run("schematic extraction", func(b *testing.B) {
+		const fileName = "test_input.txt"
+		const lines = "ABC\nDEF"
+
+		mockReader := new(MockFileReader)
+		mockReader.On("Open", fileName).Return(io.NopCloser(strings.NewReader(lines)), nil)
+
+		for i := 0; i < b.N; i++ {
+			_, _ = extractSchematic(fileName, mockReader)
+		}
+	})
+
+	b.Run("schematic values extraction", func(b *testing.B) {
+		var schematic [][]byte
+		schematic = append(schematic, []byte{'4', '6', '7', '.', '.', '1', '1', '4', '.', '.'})
+		schematic = append(schematic, []byte{'.', '.', '.', '*', '.', '.', '.', '.', '.', '.'})
+		schematic = append(schematic, []byte{'.', '.', '3', '5', '.', '.', '6', '3', '3', '.'})
+		schematic = append(schematic, []byte{'.', '.', '.', '.', '.', '.', '.', '#', '.', '.'})
+
+		for i := 0; i < b.N; i++ {
+			_, _ = extractTokens(schematic)
+		}
+	})
+
+	b.Run("gears extraction", func(b *testing.B) {
+		var schematic [][]byte
+		schematic = append(schematic, []byte{'4', '6', '7', '.', '.', '1', '1', '4', '.', '.'})
+		schematic = append(schematic, []byte{'.', '.', '.', '*', '.', '.', '.', '*', '.', '.'})
+		schematic = append(schematic, []byte{'.', '.', '3', '5', '.', '.', '.', '3', '3', '.'})
+		schematic = append(schematic, []byte{'.', '*', '.', '.', '.', '*', '.', '#', '.', '.'})
+
+		for i := 0; i < b.N; i++ {
+			_, _ = extractTokens(schematic)
+		}
+	})
+
+	b.Run("value adjacency determination", func(b *testing.B) {
+		var schematic [][]byte
+		schematic = append(schematic, []byte{'4', '6', '7', '.', '.', '1', '1', '4', '.', '#'})
+		schematic = append(schematic, []byte{'.', '.', '.', '.', '*', '3', '2', '.', '5', '6'})
+		schematic = append(schematic, []byte{'.', '.', '5', '0', '1', '.', '1', '2', '.', '.'})
+		schematic = append(schematic, []byte{'.', '.', '.', '.', '.', '.', '/', '.', '.', '6'})
+
+		for i := 0; i < b.N; i++ {
+			isAdjacentToSymbols(schematicValue{"467", 0, 0}, schematic)
+		}
+	})
+
+	b.Run("gear ratio determination", func(b *testing.B) {
+		var schematic [][]byte
+		schematic = append(schematic, []byte{'4', '6', '7', '.', '.', '1', '1', '4', '.', '*'})
+		schematic = append(schematic, []byte{'.', '*', '.', '.', '*', '3', '2', '.', '5', '6'})
+		schematic = append(schematic, []byte{'.', '.', '5', '0', '1', '.', '1', '2', '.', '*'})
+		schematic = append(schematic, []byte{'*', '.', '.', '.', '.', '.', '/', '.', '.', '6'})
+
+		for i := 0; i < b.N; i++ {
+			getGearRatioOrZero(gear{0, 9}, schematic)
+		}
+	})
+
+	b.Run("schematic value from coordinates extraction", func(b *testing.B) {
+		var schematic [][]byte
+		schematic = append(schematic, []byte{'4', '6', '7', '.', '.', '.', '.', '.', '.', '#'})
+		schematic = append(schematic, []byte{'.', '.', '.', '.', '*', '3', '2', '.', '5', '6'})
+		schematic = append(schematic, []byte{'.', '.', '5', '0', '1', '.', '1', '.', '.', '.'})
+		schematic = append(schematic, []byte{'.', '.', '.', '.', '.', '.', '/', '.', '.', '6'})
+
+		for i := 0; i < b.N; i++ {
+			_, _ = getValueFromCoordinates(0, 0, schematic)
+		}
+	})
+
+}
