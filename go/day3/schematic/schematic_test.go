@@ -56,12 +56,7 @@ func TestTotalCalculationShould(t *testing.T) {
 		_, _, err := CalculateTotals(fileName, mockReader)
 		expected := "file open error"
 
-		assert.EqualError(
-			t,
-			err,
-			expected,
-			"Did not fail when unable to read file",
-		)
+		assert.EqualError(t, err, expected, "Did not fail when unable to read file")
 	})
 
 }
