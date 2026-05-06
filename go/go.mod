@@ -1,4 +1,4 @@
-module adventOfCode
+module ctsag_
 
 go 1.23.2
 

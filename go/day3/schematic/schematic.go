@@ -1,7 +1,7 @@
 package schematic
 
 import (
-	"adventOfCode/common/fileops"
+	"ctsag_/common/fileops"
 	"bufio"
 	"errors"
 	"strconv"

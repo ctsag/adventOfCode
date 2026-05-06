@@ -1,7 +1,7 @@
 package coordinates
 
 import (
-	"adventOfCode/common/fileops"
+	"ctsag_/common/fileops"
 	"bufio"
 	"errors"
 	"fmt"
