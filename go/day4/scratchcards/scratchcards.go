@@ -1,7 +1,7 @@
 package scratchcards
 
 import (
-	"adventOfCode/common/fileops"
+	"ctsag_adventOfCode/common/fileops"
 	"bufio"
 	"regexp"
 	"slices"

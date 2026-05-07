@@ -1,9 +1,9 @@
 package main
 
 import (
-	"adventOfCode/common/fileops"
-	"adventOfCode/common/validation"
-	"adventOfCode/day1/coordinates"
+	"ctsag_adventOfCode/common/fileops"
+	"ctsag_adventOfCode/common/validation"
+	"ctsag_adventOfCode/day1/coordinates"
 	"fmt"
 	"log"
 	"os"
