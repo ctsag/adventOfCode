@@ -1,7 +1,7 @@
 package gameids
 
 import (
-	"adventOfCode/common/fileops"
+	"ctsag_adventOfCode/common/fileops"
 	"bufio"
 	"errors"
 	"fmt"
